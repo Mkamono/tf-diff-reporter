@@ -33,7 +33,7 @@ jobs:
         run: go test -v -race -coverprofile=coverage.out ./...
 
       - name: Build
-        run: go build -o tf-diff-reporter ./cmd/cli
+        run: go build -o tfdr ./cmd/tfdr
 
       - name: Check binary
-        run: ./tf-diff-reporter help
+        run: ./tfdr help
