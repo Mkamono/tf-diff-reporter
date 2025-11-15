@@ -11,6 +11,7 @@ tf-diff-reporter
 *.test
 dist/
 bin/
+vendor/
 
 # IDE
 .vscode/

@@ -1,0 +1,51 @@
+version: 2
+
+project_name: tf-diff-reporter
+
+builds:
+  - id: default
+    main: ./cmd/cli
+    binary: tf-diff-reporter
+
+    goos:
+      - linux
+      - darwin
+      - windows
+
+    goarch:
+      - amd64
+      - arm64
+
+    env:
+      - CGO_ENABLED=0
+
+    ldflags:
+      - -s -w
+      - -X main.Version={{.Version}}
+      - -X main.Commit={{.Commit}}
+      - -X main.Date={{.Date}}
+
+archives:
+  - id: default
+    name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+    files:
+      - README.md
+      - CLAUDE.md
+
+checksum:
+  name_template: 'checksums.txt'
+  algorithm: sha256
+
+release:
+  draft: false
+  prerelease: false
+  mode: replace
+  name_template: '{{.ProjectName}} {{.Version}}'
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
