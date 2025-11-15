@@ -76,26 +76,21 @@ func runCompare(args []string) {
 		}
 
 		sort.Strings(allDirs)
-		if *reverse {
-			// Use last directory as base, others as compare
-			baseDir = allDirs[len(allDirs)-1]
-			compareDirs = allDirs[:len(allDirs)-1]
-		} else {
-			baseDir = allDirs[0]
-			compareDirs = allDirs[1:]
-		}
+		baseDir = allDirs[0]
+		compareDirs = allDirs[1:]
 	} else {
 		if len(dirs) < 2 {
 			log.Fatal("At least 2 environments must be specified")
 		}
 
-		if *reverse {
-			// Use last directory as base, others as compare
-			baseDir = dirs[len(dirs)-1]
-			compareDirs = dirs[:len(dirs)-1]
-		} else {
-			baseDir = dirs[0]
-			compareDirs = dirs[1:]
+		baseDir = dirs[0]
+		compareDirs = dirs[1:]
+	}
+
+	// Reverse compare order if --reverse flag is set
+	if *reverse {
+		for i, j := 0, len(compareDirs)-1; i < j; i, j = i+1, j-1 {
+			compareDirs[i], compareDirs[j] = compareDirs[j], compareDirs[i]
 		}
 	}
 
@@ -217,20 +212,20 @@ Usage:
 Options:
   -i, --ignore FILE     Path to ignore file (default: .tfdr/ignore.json)
   -o, --output-dir DIR  Output directory for reports (default: .tfdr/reports)
-  -r, --reverse         Reverse order: use last env as base instead of first
+  -r, --reverse         Reverse comparison order (compare from last to first)
 
 Examples:
-  # Compare env1 vs env2 and env3 (env1 is base)
+  # Compare env1 vs env2 and env3 (env1 is base, env2→env3 order)
   tf-diff-reporter compare env1 env2 env3
 
-  # Compare env1 and env2 vs env3 (env3 is base)
-  tf-diff-reporter -r compare env1 env2 env3
+  # Compare env1 vs env3 and env2 (env1 is base, env3→env2 order)
+  tf-diff-reporter compare -r env1 env2 env3
 
   # Auto-detect environments (sorted alphabetically, first is base)
   tf-diff-reporter compare
 
-  # Auto-detect with reverse (last is base)
-  tf-diff-reporter -r compare
+  # Auto-detect with reverse (first is base, reverse order)
+  tf-diff-reporter compare -r
 
   # Custom ignore file and output directory
   tf-diff-reporter compare -i my-ignore.json -o my-reports env1 env2`)
