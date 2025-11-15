@@ -5,7 +5,9 @@
       "Bash(go build:*)",
       "Bash(make clean)",
       "Bash(make test)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "WebSearch",
+      "Bash(gh run list:*)"
     ],
     "deny": [],
     "ask": []

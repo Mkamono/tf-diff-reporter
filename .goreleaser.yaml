@@ -4,7 +4,7 @@ project_name: tf-diff-reporter
 
 builds:
   - id: default
-    main: ./cmd/cli
+    main: ./cmd/tfdr
     binary: tfdr
 
     goos:
