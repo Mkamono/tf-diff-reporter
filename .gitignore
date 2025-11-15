@@ -1,5 +1,5 @@
 # Binaries
-tf-diff-reporter
+tfdr
 *.exe
 *.dll
 *.so
