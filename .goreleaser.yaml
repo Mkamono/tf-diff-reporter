@@ -37,9 +37,6 @@ checksum:
   algorithm: sha256
 
 release:
-  draft: false
-  prerelease: false
-  mode: replace
   name_template: '{{.ProjectName}} {{.Version}}'
 
 changelog:
