@@ -213,6 +213,5 @@ Examples:
   tf-diff-reporter compare
 
   # Custom ignore file and output directory
-  tf-diff-reporter compare -i my-ignore.json -o my-reports env1 env2
-`)
+  tf-diff-reporter compare -i my-ignore.json -o my-reports env1 env2`)
 }
