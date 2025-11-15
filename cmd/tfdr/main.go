@@ -87,7 +87,6 @@ func runCompare(args []string) {
 		compareDirs = dirs[1:]
 	}
 
-
 	// Validate directories exist
 	if err := validateDirs(baseDir, compareDirs); err != nil {
 		log.Fatalf("Directory validation failed: %v", err)
