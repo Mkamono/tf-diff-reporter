@@ -1,5 +1,5 @@
 # Binaries
-tfdr
+/tfdr
 *.exe
 *.dll
 *.so
