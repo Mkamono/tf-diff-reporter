@@ -1,6 +1,6 @@
 # tf-diff-reporter 🧾
 
-Terraform で管理される複数の環境（ディレクトリ）をスキャンし、`terraform plan` の「あるべき姿」を自動で比較。`.tfdr/ignore.json` に基づいて「意図した差分」と「意図しない差分」を分類し、統合されたレポートを生成する CI/CD 向けラッパーツールです。
+Terraform で管理される複数の環境（ディレクトリ）の HCL コードを直接比較し、`.tfdr/ignore.json` に基づいて「意図した差分」と「意図しない差分」を分類する CI/CD 向けツール。差分を JSON Pointer (RFC 6902) 形式で統合レポート（Markdown）として生成します。
 
 ## 💡 なぜこのツールが必要か？
 
@@ -15,83 +15,97 @@ Terraform で `dev`, `stg`, `prd` などの環境を運用する際、HCL コー
 
 ## ✨ 特徴
 
-  * **オールインワン実行**: `terraform init`, `plan`, `show` の実行をラップし、レポート生成までを単一コマンドで行います。
-  * **非破壊的な実行**: 一時ディレクトリで処理を行うため、ユーザーの環境に影響を与えません。
-  * **外部依存なし**: `terraform show -json` の出力を Go 内部で直接パースします。`jq` や YAML ライブラリ不要。
-  * **HCL コード比較**: `-backend=false` と `-refresh=false` により、外部状態に依存しない純粋なコード比較が実現できます。
-  * **マルチ環境対応**: 複数の環境（ディレクトリ）を一度に比較し、1つの統合レポートを生成します。
-  * **自動検出**: 引数を省略すると、配下のディレクトリを自動でスキャンして比較対象とします。
-  * **集中管理された無視リスト**: `.tfdr/ignore.json` で全環境の「意図した差分」を一元管理。
+  * **HCL コード直接比較**: `hcl2json` と `jd` ツールを活用し、HCL ファイルを JSON に変換して差分を検出。Terraform state に依存しません。
+  * **完全なコード比較**: 外部リソース状態に依存しない、純粋なコード比較により、オフライン環境や CI/CD での実行をサポート。
+  * **マルチ環境対応**: 複数の環境（ディレクトリ）を一度に比較し、1つの統合レポートを生成。
+  * **自動検出**: 引数を省略すると、配下のディレクトリを自動でスキャンして比較対象とします。アルファベット順でソートされ、最初の環境が基準になります。
+  * **比較方向の反転**: `-r/--reverse` フラグで、比較方向を反転（env → base instead of base → env）。
+  * **集中管理された無視リスト**: `.tfdr/ignore.json` で全環境の「意図した差分」を一元管理。JSON Pointer (RFC 6902) 形式のパスで指定。
   * **CI/CD フレンドリー**: 認知されていない差分が 1 件でもあれば、exit code 1 を返します。
-  * **複数の出力形式**: Markdown、CSV、JSON に対応（拡張性重視の設計）。
+  * **Markdown レポート出力**: レポートは Markdown 形式で `.tfdr/reports/comparison-report.md` に出力。GitHub や CI/CD 環境で直接レンダリング可能。
 
 -----
 
 ## 🔧 実行メカニズム
 
-`tf-diff-reporter` は安全な比較を実現するため、以下の工夫を行っています：
+`tf-diff-reporter` は HCL コードの直接比較により、Terraform state に依存しない安全な差分検出を実現しています：
 
-### 一時ディレクトリでの処理
-
-各環境のディレクトリ内容を **一時ディレクトリ** にコピーし、その中で `terraform init` と `terraform plan` を実行します。
-
-- **メリット**: ユーザーの環境に `.terraform/` ディレクトリやロック ファイルが生成されない
-- **クリーンアップ**: 処理終了後、一時ディレクトリは自動的に削除される
-
-### バックエンド設定を無視
+### ステップ 1: HCL → JSON 変換
 
 ```bash
-terraform init -backend=false
+hcl2json env1/main.tf > /tmp/env1.json
 ```
 
-- バックエンド設定（S3、Terraform Cloud など）を無視して初期化
-- **目的**: 状態ファイル（state）に依存しない、純粋な HCL コード比較
+各環境のディレクトリ内の `.tf` ファイルを `hcl2json` で JSON に変換します。複数ファイルの場合は自動的にマージされます。
 
-### リフレッシュを無効化
+### ステップ 2: JSON 差分検出 (jd)
 
 ```bash
-terraform plan -refresh=false
+jd -f patch /tmp/env1.json /tmp/env2.json
 ```
 
-- 既存のリモートリソースの状態確認をスキップ
-- **目的**: オフライン環境や CI/CD での実行をサポート
+`jd` ツールで JSON ファイルの差分を RFC 6902 (JSON Patch) 形式で取得します。
 
-### スキップされるファイル
+### ステップ 3: 差分の分類と統合
 
-コピー時に以下が除外されます：
+Go 内部で差分を処理し、以下の処理を行います：
 
-- `.git/`, `.terraform/` などの隠しディレクトリ
-- バックエンド設定ファイル（`backend.tf` など）
+- `remove` + `add` 操作を `replace` 操作に統合
+- `.tfdr/ignore.json` のルールに基づいて「意図した差分」と「意図しない差分」に分類
+- 複数の比較環境の結果を統合
 
-これにより、ユーザーが後で通常の `terraform plan` を実行する際に、改めて `terraform init` をする必要がありません。
+### ステップ 4: Markdown レポート生成
+
+統合された差分情報を Markdown 形式でレポートに出力します。
+
+### 外部ツール依存
+
+このツールは以下の外部ツールに依存しています：
+
+- **`hcl2json`**: HCL ファイルを JSON に変換
+- **`jd`**: JSON ファイルの差分を RFC 6902 形式で抽出
+
+これらがインストールされていることを前提として動作します。
 
 -----
 
 ## 💿 インストール
 
-### バイナリ (推奨)
-
-[Releases ページ](https://www.google.com/search?q=https://github.com/YOUR_USER/tf-plan-reporter/releases) から、ご使用のOS/アーキテクチャに合った最新のバイナリをダウンロードしてください。
-
-### Go を使う場合
+### Go を使う場合 (推奨)
 
 ```bash
-go install github.com/YOUR_USER/tf-plan-reporter@latest
+go install github.com/Mkamono/tf-diff-reporter/cmd/tfdr@latest
+```
+
+### バイナリ
+
+[Releases ページ](https://github.com/Mkamono/tf-diff-reporter/releases) から、ご使用のOS/アーキテクチャに合った最新のバイナリをダウンロードしてください。
+
+### 外部ツール
+
+以下のツールが必要です：
+
+```bash
+# hcl2json をインストール
+go install github.com/tmccombs/hcl2json@latest
+
+# jd をインストール
+go install github.com/josephburnett/jd@latest
 ```
 
 ### ソースからビルド
 
 ```bash
-git clone https://github.com/YOUR_USER/tf-plan-reporter.git
-cd tf-plan-reporter
-go build .
+git clone https://github.com/Mkamono/tf-diff-reporter.git
+cd tf-diff-reporter
+go build -o tfdr ./cmd/tfdr
 ```
 
 -----
 
 ## 📖 使い方 (Usage)
 
-`tf-plan-reporter` は、特定のディレクトリ構造を前提として動作します。
+`tf-diff-reporter` は、特定のディレクトリ構造を前提として動作します。
 
 ### Step 1. 前提となるディレクトリ構造
 
@@ -104,15 +118,14 @@ go build .
 │   ├── ignore.json     <-- 差分を管理するファイル
 │   └── reports/        <-- レポートの出力先
 ├── dev/
-│   ├── main.tf
-│   └── terraform.tfvars
+│   └── main.tf         <-- HCL ファイル（複数可）
 ├── prd/
-│   ├── main.tf
-│   └── terraform.tfvars
+│   └── main.tf
 └── stg/
-    ├── main.tf
-    └── terraform.tfvars
+    └── main.tf
 ```
+
+> **Note:** ディレクトリ内の HCL ファイルは自動的に検出・変換されます。`terraform.tfvars` などは無視されます。
 
 ### Step 2. `.tfdr/ignore.json` の定義
 
@@ -145,35 +158,45 @@ go build .
 **コマンドの書式:**
 
 ```bash
-./tf-plan-reporter compare [OPTIONS] [DIR_1 (基準)] [DIR_2] [DIR_3] ...
+tfdr compare [OPTIONS] [DIR_1 (基準)] [DIR_2] [DIR_3] ...
 ```
 
 **オプション (Flags):**
 
-  * `--ignore FILE`, `-i FILE`: 差分を管理する ignore ファイルのパス。（デフォルト: `.tfdr/ignore.json`）
-  * `--output-dir DIR`, `-o DIR`: レポートの出力先ディレクトリ。（デフォルト: `.tfdr/reports`）
-  * `--format FORMAT`, `-f FORMAT`: 出力形式。`markdown`（デフォルト）、`csv`、`json` から選択可能。
+  * `-i, --ignore FILE`: 差分を管理する ignore ファイルのパス。（デフォルト: `.tfdr/ignore.json`）
+  * `-o, --output-dir DIR`: レポートの出力先ディレクトリ。（デフォルト: `.tfdr/reports`）
+  * `-r, --reverse`: 比較方向を反転。`env → base` の形式で表示（通常は `base → env`）
 
 -----
 
 #### 実行例 1: 環境を明示的に指定する
 
-`prd` を基準として、`dev` と `stg` を比較し、統合レポートを生成します。
+`dev` を基準として、`prd` と `stg` を比較し、統合レポートを生成します。
 
 ```bash
-# prd を基準に指定
-./tf-diff-reporter compare prd dev stg
+# dev を基準に指定
+tfdr compare dev prd stg
 ```
 
-  * **実行される動作:**
-    1.  `prd` を基準として、`dev` と `stg` の Terraform plan を実行
-    2.  すべての環境の差分を収集・比較
-    3.  1つの統合レポートを `.tfdr/reports/comparison-report.md` に生成
+**生成されるレポート:**
+  * `dev → prd` の差分
+  * `dev → stg` の差分
 
-#### 実行例 2: 引数なしで自動検出する
+#### 実行例 2: 比較方向を反転
 
 ```bash
-./tf-diff-reporter compare
+# dev を基準に保ったまま、prd と stg から dev への比較方向に反転
+tfdr compare -r dev prd stg
+```
+
+**生成されるレポート:**
+  * `prd → dev` の差分
+  * `stg → dev` の差分
+
+#### 実行例 3: 引数なしで自動検出する
+
+```bash
+tfdr compare
 ```
 
   * **実行される動作:**
@@ -182,55 +205,53 @@ go build .
     3.  ソート後の1番目 (`dev`) が「基準」として自動選択されます。
     4.  `prd` と `stg` を `dev` と比較し、統合レポートを生成
 
-#### 実行例 3: 出力形式を指定する
+#### 実行例 4: カスタム ignore ファイルと出力ディレクトリ
 
 ```bash
-./tf-diff-reporter compare -f csv prd dev stg
+tfdr compare -i custom-ignore.json -o ./my-reports dev prd stg
 ```
 
-  * **生成されるレポート:**
-    - `.tfdr/reports/comparison-report.csv` (CSV 形式)
-
 > **Note:**
-> CI/CD での安定した運用のため、**実行例1（環境を明示的に指定）** の方法を推奨します。
+> CI/CD での安定した運用のため、**実行例1または2（環境を明示的に指定）** の方法を推奨します。
 
 -----
 
 ## 📊 出力例 (`.tfdr/reports/comparison-report.md`)
 
-`compare prd dev stg` を実行した場合、以下のようなレポートが `.tfdr/reports/comparison-report.md` に生成されます。
+`tfdr compare dev prd stg` を実行した場合、以下のようなレポートが `.tfdr/reports/comparison-report.md` に生成されます。
 
 ### レポート構成
 
-```
-# Terraform 環境間差分レポート (基準: prd)
+```markdown
+# Terraform 環境間差分レポート (基準: dev)
 
-## 📊 概要
+## 📊 サマリー
 
-**基準環境:** `prd`
-
-**比較環境:** 2 個
-
-| 指標 | 件数 |
+| | |
 | --- | --- |
-| 認知されていない差分 | 5 |
-| 認知済みの差分 | 12 |
+| 基準環境 | `dev` |
+| 未認識差分 (−) | 5 |
+| 認識済み差分 (✓) | 12 |
 
-## 🚨 認知されていない差分 (確認推奨)
+## 認識済み差分 (ignore.json)
 
-以下の差分は `ignore.json` で管理されていません。
-
-| 属性パス | prd | dev | stg |
+| 属性パス | dev → prd | dev → stg | 理由 |
 | :--- | :--- | :--- | :--- |
-| /aws_lambda_function.my_function/timeout | 60 | 30 | 45 |
+| /resource/google_compute_instance/web/0/machine_type | ~ e2-medium<br>→ e2-standard-2 | − | Machine type scaled: e2-medium -> e2-standard-2 |
+| /resource/google_sql_database_instance/main/0/settings/0/tier | ~ db-f1-micro<br>→ db-custom-2-8192 | ~ db-f1-micro<br>→ db-custom-2-8192 | Database tier scaled up in prd and stg |
 ```
 
 ### 特徴
 
-- **すべての環境が横一列**: 属性パスごとに、基準環境と比較環境の値が並んで表示
+- **属性パス表示**: JSON Pointer (RFC 6902) 形式で、どの設定が異なるかを明確に表示
+- **操作記号**:
+  - `+` = リソース追加
+  - `−` = リソース削除
+  - `~` = リソース変更
 - **マルチライン値対応**: 複数行の値は `<br>` で改行表示（Markdown レンダリング時に整形）
 - **理由の表示**: 認知済み差分には `ignore.json` のコメントを表示
 - **単一ファイル出力**: すべての比較結果を1つのレポートにマージ
+- **複数環境対応**: 2つ以上の比較環境がある場合、複数列で並べて表示
 
 ## 🤝 コントリビューション
 
@@ -238,4 +259,4 @@ go build .
 
 ## 📜 ライセンス
 
-[MIT License](https://www.google.com/search?q=LICENSE)
+[MIT License](./LICENSE)
