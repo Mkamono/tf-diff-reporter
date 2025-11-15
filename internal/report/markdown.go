@@ -127,7 +127,11 @@ func (mf *MarkdownFormatter) formatMergedDiffTableWithOp(result model.MergedComp
 	// Build header
 	sb.WriteString("| 属性パス |")
 	for _, envDiff := range result.CompareEnvs {
-		sb.WriteString(fmt.Sprintf(" %s → %s |", result.BaseEnv, envDiff.EnvName))
+		if result.Reversed {
+			sb.WriteString(fmt.Sprintf(" %s → %s |", envDiff.EnvName, result.BaseEnv))
+		} else {
+			sb.WriteString(fmt.Sprintf(" %s → %s |", result.BaseEnv, envDiff.EnvName))
+		}
 	}
 	if acknowledged {
 		sb.WriteString(" 理由 |")

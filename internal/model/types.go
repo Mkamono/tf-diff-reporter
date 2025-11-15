@@ -29,4 +29,5 @@ type MergedComparisonResult struct {
 	CompareEnvs            []EnvironmentDiff
 	TotalUnknownDiffs      int
 	TotalAcknowledgedDiffs int
+	Reversed               bool // Whether comparison direction is reversed
 }

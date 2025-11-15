@@ -87,13 +87,6 @@ func runCompare(args []string) {
 		compareDirs = dirs[1:]
 	}
 
-	// Reverse: reverse the order of compare directories
-	// This way each compare directory will be shown in reverse order
-	if *reverse {
-		for i, j := 0, len(compareDirs)-1; i < j; i, j = i+1, j-1 {
-			compareDirs[i], compareDirs[j] = compareDirs[j], compareDirs[i]
-		}
-	}
 
 	// Validate directories exist
 	if err := validateDirs(baseDir, compareDirs); err != nil {
@@ -141,6 +134,7 @@ func runCompare(args []string) {
 	mergedResult := model.MergedComparisonResult{
 		BaseEnv:     baseDirName,
 		CompareEnvs: []model.EnvironmentDiff{},
+		Reversed:    *reverse,
 	}
 
 	for _, compareDir := range compareDirs {
@@ -151,7 +145,7 @@ func runCompare(args []string) {
 		defer os.Remove(compareJSONPath)
 
 		// Get diffs using jd
-		// When reversed, swap the comparison order: compare -> base (instead of base -> compare)
+		// When reversed, compare from env to base (instead of base to env)
 		var jdDiffs []tools.JDDiff
 		if *reverse {
 			jdDiffs, err = tools.ExecuteJD(compareJSONPath, baseJSONPath)
