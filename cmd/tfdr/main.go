@@ -87,7 +87,8 @@ func runCompare(args []string) {
 		compareDirs = dirs[1:]
 	}
 
-	// Reverse compare order if --reverse flag is set
+	// Reverse: reverse the order of compare directories
+	// This way each compare directory will be shown in reverse order
 	if *reverse {
 		for i, j := 0, len(compareDirs)-1; i < j; i, j = i+1, j-1 {
 			compareDirs[i], compareDirs[j] = compareDirs[j], compareDirs[i]
@@ -150,14 +151,20 @@ func runCompare(args []string) {
 		defer os.Remove(compareJSONPath)
 
 		// Get diffs using jd
-		diffs, err := tools.ExecuteJD(baseJSONPath, compareJSONPath)
+		// When reversed, swap the comparison order: compare -> base (instead of base -> compare)
+		var jdDiffs []tools.JDDiff
+		if *reverse {
+			jdDiffs, err = tools.ExecuteJD(compareJSONPath, baseJSONPath)
+		} else {
+			jdDiffs, err = tools.ExecuteJD(baseJSONPath, compareJSONPath)
+		}
 		if err != nil {
 			log.Fatalf("Failed to execute jd: %v", err)
 		}
 
 		// Classify diffs as acknowledged or unknown
 		compareDirName := filepath.Base(compareDir)
-		unknown, acknowledged := comparator.ClassifyDiffs(diffs)
+		unknown, acknowledged := comparator.ClassifyDiffs(jdDiffs)
 
 		envDiff := model.EnvironmentDiff{
 			EnvName:           compareDirName,
@@ -212,19 +219,19 @@ Usage:
 Options:
   -i, --ignore FILE     Path to ignore file (default: .tfdr/ignore.json)
   -o, --output-dir DIR  Output directory for reports (default: .tfdr/reports)
-  -r, --reverse         Reverse comparison order (compare from last to first)
+  -r, --reverse         Reverse: use last environment as base, others vs it
 
 Examples:
-  # Compare env1 vs env2 and env3 (env1 is base, env2→env3 order)
+  # Compare env1 vs env2 and env3 (env1 is base)
   tf-diff-reporter compare env1 env2 env3
 
-  # Compare env1 vs env3 and env2 (env1 is base, env3→env2 order)
+  # Compare env2, env1 vs env3 (env3 is base)
   tf-diff-reporter compare -r env1 env2 env3
 
   # Auto-detect environments (sorted alphabetically, first is base)
   tf-diff-reporter compare
 
-  # Auto-detect with reverse (first is base, reverse order)
+  # Auto-detect with reverse (last is base)
   tf-diff-reporter compare -r
 
   # Custom ignore file and output directory
