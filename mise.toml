@@ -1,0 +1,4 @@
+[tools]
+hcl2json = "latest"
+jd = "latest"
+terraform = "latest"

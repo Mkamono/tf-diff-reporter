@@ -1,0 +1,50 @@
+[
+  {
+    "path": "/resource/google_storage_bucket/app_buckets/0/for_each/archive",
+    "comment": "New archive bucket added in env2"
+  },
+  {
+    "path": "/resource/google_storage_bucket/app_buckets/0/for_each/data",
+    "comment": "Data bucket storage class changed: NEARLINE -> STANDARD"
+  },
+  {
+    "path": "/resource/google_storage_bucket/app_buckets/0/name",
+    "comment": "Bucket name suffix differs per environment"
+  },
+  {
+    "path": "/resource/google_storage_bucket/app_buckets/0/labels/env",
+    "comment": "Environment label differs: env1 -> env2"
+  },
+  {
+    "path": "/resource/google_service_account/services/0/for_each",
+    "comment": "Services extended with monitor account in env2"
+  },
+  {
+    "path": "/resource/google_service_account/services/0/account_id",
+    "comment": "Service account ID suffix differs: env1 -> env2"
+  },
+  {
+    "path": "/resource/google_service_account/services/0/display_name",
+    "comment": "Service account display name suffix differs: env1 -> env2"
+  },
+  {
+    "path": "/resource/google_service_account/services/0/description",
+    "comment": "Service account description suffix differs: env1 -> env2"
+  },
+  {
+    "path": "/resource/google_compute_instance/web_servers/0/for_each/frontend-3",
+    "comment": "New frontend-3 instance added in env2"
+  },
+  {
+    "path": "/resource/google_compute_instance/web_servers/0/machine_type",
+    "comment": "Machine type upgraded: e2-medium -> e2-standard-2"
+  },
+  {
+    "path": "/resource/google_compute_instance/web_servers/0/labels/env",
+    "comment": "Environment label differs: env1 -> env2"
+  },
+  {
+    "path": "/resource/google_compute_instance/web_servers/0/tags/0",
+    "comment": "Tags differ per environment: env1 -> env2"
+  }
+]

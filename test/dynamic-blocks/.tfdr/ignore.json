@@ -1,0 +1,15 @@
+[
+  { "path": "/locals/0/env", "comment": "Environment name differs: env1 -> env2" },
+  { "path": "/locals/0/ingress_rules/0/sources/0", "comment": "SSH source restricted: 0.0.0.0/0 -> 10.0.0.0/8" },
+  { "path": "/locals/0/ingress_rules/2", "comment": "HTTPS ingress rule added in env2" },
+  { "path": "/locals/0/egress_rules/1", "comment": "MySQL egress rule added in env2" },
+  { "path": "/locals/1/env_vars/LOG_LEVEL", "comment": "Log level changed: info -> debug" },
+  { "path": "/locals/1/env_vars/DEBUG", "comment": "Debug mode enabled: false -> true" },
+  { "path": "/locals/1/env_vars/API_VERSION", "comment": "API version added: v2" },
+  { "path": "/resource/google_compute_firewall/ingress/0/name", "comment": "Firewall rule name differs per environment" },
+  { "path": "/resource/google_compute_firewall/egress/0/name", "comment": "Firewall rule name differs per environment" },
+  { "path": "/resource/google_cloud_run_service/api/0/name", "comment": "Cloud Run service name differs per environment" },
+  { "path": "/resource/google_cloud_run_service/api/0/template/0/spec/0/containers/0/image", "comment": "Container image updated: v1 -> v2" },
+  { "path": "/resource/google_cloud_run_service/api/0/template/0/spec/0/containers/0/resources/0/limits/cpu", "comment": "CPU scaled: 1 -> 2" },
+  { "path": "/resource/google_cloud_run_service/api/0/template/0/spec/0/containers/0/resources/0/limits/memory", "comment": "Memory scaled: 512Mi -> 1Gi" }
+]

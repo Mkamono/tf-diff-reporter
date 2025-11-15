@@ -1,0 +1,15 @@
+[
+  { "path": "/locals/0/env", "comment": "Environment name differs: env1 -> env2" },
+  { "path": "/locals/0/enable_backup", "comment": "Backup feature enabled in env2 (false -> true)" },
+  { "path": "/locals/0/enable_https", "comment": "HTTPS feature enabled in env2 (false -> true)" },
+  { "path": "/locals/0/replica_count", "comment": "Replica count increased: 1 -> 2" },
+  { "path": "/resource/google_sql_database_instance/primary/0/name", "comment": "Primary database name differs per environment" },
+  { "path": "/resource/google_sql_database_instance/primary/0/settings/0/tier", "comment": "Database tier scaled: db-f1-micro -> db-custom-2-8192" },
+  { "path": "/resource/google_sql_database_instance/backup", "comment": "Backup database instance created in env2 only" },
+  { "path": "/resource/google_compute_ssl_certificate/default", "comment": "SSL certificate created in env2 only (HTTPS enabled)" },
+  { "path": "/resource/google_compute_instance/replicas", "comment": "Replica instance count differs: 1 (env1) -> 2 (env2)" },
+  { "path": "/resource/google_compute_instance/replicas/0/machine_type", "comment": "Replica machine type scaled: e2-medium -> e2-standard-2" },
+  { "path": "/resource/google_compute_instance/replicas/0/name", "comment": "Replica instance name differs per environment" },
+  { "path": "/resource/google_storage_bucket/data", "comment": "Backup storage bucket created in env2 only" },
+  { "path": "/resource/google_storage_bucket/data/0/storage_class", "comment": "Storage class changed: NEARLINE -> COLDLINE for backup" }
+]

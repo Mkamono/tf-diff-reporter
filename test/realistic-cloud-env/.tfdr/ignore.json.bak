@@ -1,0 +1,130 @@
+[
+  {
+    "path": "/resource/google_compute_network/main/0/labels/environment",
+    "comment": "Environment label intentionally differs between dev, stg, prd"
+  },
+  {
+    "path": "/resource/google_compute_network/main/0/name",
+    "comment": "VPC network name differs per environment (vpc-dev, vpc-stg, vpc-prd)"
+  },
+  {
+    "path": "/resource/google_container_cluster/primary/0/name",
+    "comment": "GKE cluster name includes environment suffix (dev, stg, prd)"
+  },
+  {
+    "path": "/resource/google_container_cluster/primary/0/initial_node_count",
+    "comment": "GKE node count increases: 1 (dev) -> 2 (stg) -> 3 (prd)"
+  },
+  {
+    "path": "/resource/google_container_cluster/primary/0/resource_labels/environment",
+    "comment": "Environment label intentionally differs between dev, stg, prd"
+  },
+  {
+    "path": "/resource/google_sql_database_instance/main/0/name",
+    "comment": "Cloud SQL instance name includes environment suffix"
+  },
+  {
+    "path": "/resource/google_sql_database_instance/main/0/settings/0/tier",
+    "comment": "Database tier scales: db-f1-micro (dev) -> db-custom-2-8192 (stg) -> db-custom-4-16384 (prd)"
+  },
+  {
+    "path": "/resource/google_sql_database_instance/main/0/settings/0/user_labels/environment",
+    "comment": "Environment label intentionally differs between dev, stg, prd"
+  },
+  {
+    "path": "/resource/google_sql_database_instance/main/0/labels/environment",
+    "comment": "Environment label intentionally differs between dev, stg, prd"
+  },
+  {
+    "path": "/resource/google_redis_instance/cache/0/name",
+    "comment": "Redis instance name includes environment suffix"
+  },
+  {
+    "path": "/resource/google_redis_instance/cache/0/memory_size_gb",
+    "comment": "Redis capacity increases: 1GB (dev) -> 2GB (stg) -> 5GB (prd)"
+  },
+  {
+    "path": "/resource/google_redis_instance/cache/0/tier",
+    "comment": "Redis tier changes from basic (dev) to standard (stg, prd) for HA"
+  },
+  {
+    "path": "/resource/google_redis_instance/cache/0/labels/environment",
+    "comment": "Environment label intentionally differs between dev, stg, prd"
+  },
+  {
+    "path": "/resource/google_storage_bucket/app_data/0/name",
+    "comment": "Storage bucket name includes environment suffix"
+  },
+  {
+    "path": "/resource/google_storage_bucket/app_data/0/storage_class",
+    "comment": "Storage class: STANDARD (dev, stg) -> NEARLINE (prd) for cost optimization"
+  },
+  {
+    "path": "/resource/google_storage_bucket/app_data/0/labels/environment",
+    "comment": "Environment label intentionally differs between dev, stg, prd"
+  },
+  {
+    "path": "/resource/google_cloud_run_service/api/0/name",
+    "comment": "Cloud Run service name includes environment suffix"
+  },
+  {
+    "path": "/resource/google_cloud_run_service/api/0/template/0/spec/0/containers/0/image",
+    "comment": "Container image tag differs: dev-latest (dev) -> stg-release (stg) -> release (prd)"
+  },
+  {
+    "path": "/resource/google_cloud_run_service/api/0/template/0/metadata/0/annotations/autoscaling.knative.dev~1maxScale",
+    "comment": "Cloud Run max scale increases: 10 (dev) -> 20 (stg) -> 50 (prd)"
+  },
+  {
+    "path": "/resource/google_cloud_run_service/api/0/template/0/metadata/0/annotations/autoscaling.knative.dev~1minScale",
+    "comment": "Cloud Run min scale increases: 1 (dev) -> 2 (stg) -> 5 (prd)"
+  },
+  {
+    "path": "/resource/google_cloud_run_service/api/0/labels/environment",
+    "comment": "Environment label intentionally differs between dev, stg, prd"
+  },
+  {
+    "path": "/resource/google_firestore_database/database/0/project",
+    "comment": "GCP project ID differs per environment: my-dev-project, my-stg-project, my-prd-project"
+  },
+  {
+    "path": "/provider/google/0/project",
+    "comment": "Provider project ID differs per environment"
+  },
+  {
+    "path": "/resource/google_cloud_run_service/api/0/template/0/spec/0/containers/0/env/0/value",
+    "comment": "ENVIRONMENT variable differs: dev, stg, prd"
+  },
+  {
+    "path": "/resource/google_cloud_run_service/api/0/template/0/spec/0/containers/0/resources/0/limits/cpu",
+    "comment": "Container CPU limit increases in production: 1 (dev/stg) -> 2 (prd)"
+  },
+  {
+    "path": "/resource/google_cloud_run_service/api/0/template/0/spec/0/containers/0/resources/0/limits/memory",
+    "comment": "Container memory limit increases in production: 512Mi (dev/stg) -> 1Gi (prd)"
+  },
+  {
+    "path": "/resource/google_storage_bucket/debug_logs",
+    "comment": "Development-only debug logs bucket - used only for local testing and development"
+  },
+  {
+    "path": "/resource/google_compute_instance",
+    "comment": "Development-only VM for integration testing - temporary testing infrastructure"
+  },
+  {
+    "path": "/resource/google_artifact_registry_repository",
+    "comment": "Development-only artifact registry for dev builds - not needed in stg/prd"
+  },
+  {
+    "path": "/resource/google_service_account",
+    "comment": "Development-only service account for local development and testing"
+  },
+  {
+    "path": "/resource/google_monitoring_metric_descriptor",
+    "comment": "Development-only custom metric for testing monitoring capabilities"
+  },
+  {
+    "path": "/resource/google_logging_project_sink",
+    "comment": "Development-only log sink for capturing debug logs during testing"
+  }
+]

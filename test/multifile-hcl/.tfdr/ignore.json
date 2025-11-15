@@ -1,0 +1,98 @@
+[
+  {
+    "path": "/resource/google_compute_network/main/0/name",
+    "comment": "Network name differs per environment"
+  },
+  {
+    "path": "/resource/google_compute_network/main/0/labels/environment",
+    "comment": "Environment label differs: env1 -> env2"
+  },
+  {
+    "path": "/resource/google_compute_network/main/0/labels/tier",
+    "comment": "Tier label added in env2 (production)"
+  },
+  {
+    "path": "/resource/google_compute_instance/web/0/name",
+    "comment": "Instance name differs per environment"
+  },
+  {
+    "path": "/resource/google_compute_instance/web/0/machine_type",
+    "comment": "Machine type scaled: e2-medium -> e2-standard-2"
+  },
+  {
+    "path": "/resource/google_compute_instance/web/0/boot_disk/0/initialize_params/0/size",
+    "comment": "Boot disk size increased: 20GB -> 50GB"
+  },
+  {
+    "path": "/resource/google_compute_instance/web/0/labels/environment",
+    "comment": "Environment label differs: env1 -> env2"
+  },
+  {
+    "path": "/resource/google_compute_instance/web/0/labels/tier",
+    "comment": "Tier label added in env2 (production)"
+  },
+  {
+    "path": "/resource/google_compute_instance/web/0/tags/0",
+    "comment": "Tags updated: env1 -> env2"
+  },
+  {
+    "path": "/resource/google_compute_instance/web/0/tags/3",
+    "comment": "Scaled tag added in env2"
+  },
+  {
+    "path": "/resource/google_compute_instance/app",
+    "comment": "New app server instance created in env2 only"
+  },
+  {
+    "path": "/resource/google_sql_database_instance/main/0/name",
+    "comment": "Database instance name differs per environment"
+  },
+  {
+    "path": "/resource/google_sql_database_instance/main/0/settings/0/tier",
+    "comment": "Database tier scaled: db-f1-micro -> db-custom-2-8192"
+  },
+  {
+    "path": "/resource/google_sql_database_instance/main/0/settings/0/backup_configuration/0/enabled",
+    "comment": "Backup enabled in env2"
+  },
+  {
+    "path": "/resource/google_sql_database_instance/main/0/settings/0/backup_configuration/0/point_in_time_recovery_enabled",
+    "comment": "Point-in-time recovery enabled in env2"
+  },
+  {
+    "path": "/resource/google_sql_database_instance/main/0/labels/environment",
+    "comment": "Environment label differs: env1 -> env2"
+  },
+  {
+    "path": "/resource/google_sql_database_instance/main/0/labels/tier",
+    "comment": "Tier label added in env2 (production)"
+  },
+  {
+    "path": "/resource/google_compute_firewall/allow_http/0/name",
+    "comment": "Firewall rule name differs per environment"
+  },
+  {
+    "path": "/resource/google_compute_firewall/allow_http/0/allow/0/ports/1",
+    "comment": "HTTPS port added to firewall rule in env2"
+  },
+  {
+    "path": "/resource/google_compute_firewall/allow_http/0/target_tags/0",
+    "comment": "Target tags updated: env1 -> env2"
+  },
+  {
+    "path": "/resource/google_compute_firewall/allow_http/0/target_tags/2",
+    "comment": "App tag added to firewall rule in env2"
+  },
+  {
+    "path": "/resource/google_compute_firewall/allow_http/0/labels/environment",
+    "comment": "Environment label differs: env1 -> env2"
+  },
+  {
+    "path": "/resource/google_compute_firewall/allow_http/0/labels/tier",
+    "comment": "Tier label added in env2 (production)"
+  },
+  {
+    "path": "/resource/google_compute_firewall/allow_app",
+    "comment": "New firewall rule for app server created in env2 only"
+  }
+]
